@@ -15,7 +15,6 @@ curl -fsSL https://raw.githubusercontent.com/<you>/ai-switch/main/install.sh | b
 Then reload your shell:
 
 source ~/.bashrc  # or: source ~/.zshrc
-```
 
 Usage
 
@@ -36,7 +35,7 @@ Thanks for helping!
 
 ## Dev loop
 ```bash
-# run lint & tests locally
+# run lint & tests locally (requires Bats)
 make lint
 make test
 ```
