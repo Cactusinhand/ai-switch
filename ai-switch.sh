@@ -45,11 +45,13 @@ _ai_extract_vars_from_block() {
 
 _ai_write_block_to_rc() {
   # $1: profile file path
-  local tmp
+  local tmp start_esc end_esc
   tmp="$(mktemp)"
   cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
+  start_esc=$(printf '%s\n' "$AI_RC_START" | sed 's/[]\\/$*.^[]/\\&/g')
+  end_esc=$(printf '%s\n' "$AI_RC_END" | sed 's/[]\\/$*.^[]/\\&/g')
   if [ -f "$AI_RC_FILE" ]; then
-    sed '/^# >>> AI CONFIG START >>>$/,/^# <<< AI CONFIG END <<</{d}' "$AI_RC_FILE" >"$tmp"
+    sed "/^${start_esc}\$/,/^${end_esc}\$/{d}" "$AI_RC_FILE" >"$tmp"
   else
     : >"$tmp"
   fi

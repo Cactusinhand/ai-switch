@@ -22,3 +22,11 @@ setup() {
   [[ "$output" == *'export A=B'* ]]
   [[ "$output" == *'export C=D'* ]]
 }
+
+@test "switch works with custom markers" {
+  run env AI_RC_START='# [AI] START*' AI_RC_END='# [AI] END*' bash -lc 'source "$HOME/.ai-switch.sh"; ai switch demo; ai switch demo; echo "$FOO"'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'bar'* ]]
+  [ "$(echo "$output" | grep -c 'Switched to: demo')" -eq 2 ]
+  [ "$(grep -c '# \\[AI\\] START\\*' "$HOME/.bashrc")" -eq 1 ]
+}
