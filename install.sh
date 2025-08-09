@@ -32,8 +32,10 @@ chmod 644 "$TARGET"
 if [ -z "$RC_FILE" ]; then
   if [ -n "${ZSH_VERSION:-}" ] || [ "${SHELL:-}" = "/bin/zsh" ]; then RC_FILE="$HOME/.zshrc"; else RC_FILE="$HOME/.bashrc"; fi
 fi
-if ! grep -q 'source "$HOME/.ai-switch.sh"' "$RC_FILE" 2>/dev/null; then
-  printf '\n# ai-switch\n[ -f "$HOME/.ai-switch.sh" ] && source "$HOME/.ai-switch.sh"\n' >>"$RC_FILE"
+pattern="source \"\$HOME/.ai-switch.sh\""
+line="[ -f \"\$HOME/.ai-switch.sh\" ] && source \"\$HOME/.ai-switch.sh\""
+if ! grep -q "$pattern" "$RC_FILE" 2>/dev/null; then
+  printf '\n# ai-switch\n%s\n' "$line" >>"$RC_FILE"
 fi
 
 echo "Installed to $TARGET"
