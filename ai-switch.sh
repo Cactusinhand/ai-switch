@@ -26,7 +26,7 @@ mkdir -p "$AI_PROFILES_DIR"
 
 # ------ helpers ------
 _ai_list_profiles() {
-  ls -1 "$AI_PROFILES_DIR" 2>/dev/null | grep -v '^\.current$' || true
+  find "$AI_PROFILES_DIR" -maxdepth 1 -type f ! -name '.current' -printf '%f\n' 2>/dev/null || true
 }
 
 _ai_current() {
@@ -87,7 +87,7 @@ _ai_write_profile_from_kv() {
   : >"$out"
   local kv
   for kv in "$@"; do
-    if expr match "$kv" '^[A-Za-z_][A-Za-z0-9_]*=' >/dev/null; then
+    if [[ $kv =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
       printf 'export %s\n' "$kv" >>"$out"
     else
       printf 'Ignored invalid: %s\n' "$kv" >&2
