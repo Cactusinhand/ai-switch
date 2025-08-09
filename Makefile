@@ -17,5 +17,5 @@ lint:
 	test -d completion && shellcheck completion/* || true
 	test -d tests && echo OK
 
- test:
+test:
 	bats tests
