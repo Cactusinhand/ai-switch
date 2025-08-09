@@ -1,0 +1,4 @@
+export ANTHROPIC_BASE_URL="https://open.bigmodel.cn/api/anthropic"
+export ANTHROPIC_API_KEY="xxxxxx"
+export ANTHROPIC_MODEL="glm-4.5"
+export ANTHROPIC_SMALL_FAST_MODEL="glm-4.5-air"

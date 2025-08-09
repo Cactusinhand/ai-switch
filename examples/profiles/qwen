@@ -1,0 +1,4 @@
+export OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxx"
+export OPENAI_BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
+export OPENAI_MODEL="qwen-max"
+export OPENAI_SMALL_FAST_MODEL="qwen-turbo"

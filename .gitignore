@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+# editor
+*.swp
+*.swo
+.idea/
+.vscode/
+# output
+*.bak*
+# profiles (user env)
+/.ai-profiles/
