@@ -18,4 +18,5 @@ lint:
 	test -d tests && echo OK
 
  test:
+	command -v bats >/dev/null || { echo "Bats not installed"; exit 1; }
 	bats tests

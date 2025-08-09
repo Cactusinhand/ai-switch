@@ -35,6 +35,7 @@ Thanks for helping!
 
 ## Dev loop
 ```bash
-# run lint & tests locally
+# run lint & tests locally (requires Bats)
 make lint
 make test
+```
