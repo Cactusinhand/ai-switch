@@ -46,7 +46,7 @@ _ai_extract_vars_from_block() {
 _ai_write_block_to_rc() {
   # $1: profile file path
   local tmp
-  tmp="$(mktemp)"
+  tmp="$(mktemp 2>/dev/null || mktemp -t ai-switch)"
   cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
   if [ -f "$AI_RC_FILE" ]; then
     sed '/^# >>> AI CONFIG START >>>$/,/^# <<< AI CONFIG END <<</{d}' "$AI_RC_FILE" >"$tmp"

@@ -6,21 +6,51 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
+      - name: Configure git line endings
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
-      - name: ShellCheck
-        uses: ludeeus/action-shellcheck@2.0.0
-        with:
-          scandir: .
+      - name: Install ShellCheck (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+      - name: Install ShellCheck (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install shellcheck
+      - name: Install ShellCheck (Windows)
+        if: matrix.os == 'windows-latest'
+        run: choco install shellcheck -y
+      - name: Run ShellCheck
+        run: shellcheck $(git ls-files '*.sh')
+        shell: bash
+
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
+      - name: Configure git line endings
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
-      - name: Install bats
+      - name: Install Bats (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y bats
+      - name: Install Bats (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install bats-core
+      - name: Install Bats (Windows)
+        if: matrix.os == 'windows-latest'
+        run: choco install bats -y
       - name: Run tests
-        run: |
-          bats tests
+        run: bats tests
+        shell: bash
