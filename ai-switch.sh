@@ -1,11 +1,19 @@
 # shellcheck shell=bash
 # === AI profile switcher (instant apply, with `ai add`) ===
 # Version: 0.1.0
+# Description: Instantly switch AI provider environment profiles in your shell
 # Usage:
 #   source "$HOME/.ai-switch.sh"  # typically from ~/.bashrc or ~/.zshrc
 #   ai list | ai current | ai switch <name> | ai add <name> [opts] | ai edit <name> | ai doctor
 #
-# Project: https://github.com/<you>/ai-switch
+# Features:
+# - Clean, portable export-only profiles
+# - Instant profile switching with immediate environment updates
+# - Automatic new shell inheritance
+# - Template-based profile creation
+# - Fzf integration for profile selection
+#
+# Project: https://github.com/Cactusinhand/ai-switch
 
 # ------ config ------
 export AI_PROFILES_DIR="${AI_PROFILES_DIR:-$HOME/.ai-profiles}"
@@ -25,14 +33,21 @@ fi
 mkdir -p "$AI_PROFILES_DIR"
 
 # ------ helpers ------
+
+# List all available profiles in the profiles directory
+# Returns: List of profile names, one per line
 _ai_list_profiles() {
   find "$AI_PROFILES_DIR" -maxdepth 1 -type f ! -name '.current' -printf '%f\n' 2>/dev/null || true
 }
 
+# Display the currently active profile
+# Returns: Profile name or "(none)" if no profile is active
 _ai_current() {
   if [ -f "$AI_PROFILE_STATE" ]; then cat "$AI_PROFILE_STATE"; else echo "(none)"; fi
 }
 
+# Extract environment variable names from the AI config block in rc file
+# Returns: List of variable names, one per line
 _ai_extract_vars_from_block() {
   awk -v s="$AI_RC_START" -v e="$AI_RC_END" '
     $0~s{inblk=1;next} $0~e{inblk=0;next}
@@ -46,19 +61,42 @@ _ai_extract_vars_from_block() {
 _ai_write_block_to_rc() {
   # $1: profile file path
   local tmp
-  tmp="$(mktemp)"
-  cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
+  tmp="$(mktemp)" || {
+    echo "Error: Failed to create temporary file" >&2
+    return 1
+  }
+  
+  # Backup existing rc file
   if [ -f "$AI_RC_FILE" ]; then
-    sed '/^# >>> AI CONFIG START >>>$/,/^# <<< AI CONFIG END <<</{d}' "$AI_RC_FILE" >"$tmp"
+    cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S)" || {
+      echo "Warning: Failed to create backup" >&2
+    }
+    sed '/^# >>> AI CONFIG START >>>$/,/^# <<< AI CONFIG END <<</{d}' "$AI_RC_FILE" >"$tmp" || {
+      echo "Error: Failed to process rc file" >&2
+      rm -f "$tmp"
+      return 1
+    }
   else
     : >"$tmp"
   fi
+  
+  # Write new AI config block
   {
     echo "$AI_RC_START"
     cat "$1"
     echo "$AI_RC_END"
-  } >>"$tmp"
-  mv "$tmp" "$AI_RC_FILE"
+  } >>"$tmp" || {
+    echo "Error: Failed to write AI config block" >&2
+    rm -f "$tmp"
+    return 1
+  }
+  
+  # Move temp file to rc file
+  mv "$tmp" "$AI_RC_FILE" || {
+    echo "Error: Failed to update rc file" >&2
+    rm -f "$tmp"
+    return 1
+  }
 }
 
 _ai_source_profile_now() {
@@ -72,11 +110,24 @@ _ai_source_profile_now() {
 }
 
 _ai_validate_name() {
+  # Validate profile name: alphanumeric, hyphens, underscores only
+  # Cannot be empty or start with hyphen
   case "$1" in
-    "") return 1 ;;
-    -*) return 1 ;;
-    *[!a-zA-Z0-9_-]*) return 1 ;;
-    *) return 0 ;;
+    "") 
+      echo "Error: Profile name cannot be empty" >&2
+      return 1 
+      ;;
+    -*) 
+      echo "Error: Profile name cannot start with hyphen" >&2
+      return 1 
+      ;;
+    *[!a-zA-Z0-9_-]*) 
+      echo "Error: Profile name contains invalid characters. Use only letters, numbers, hyphens, and underscores" >&2
+      return 1 
+      ;;
+    *) 
+      return 0 
+      ;;
   esac
 }
 

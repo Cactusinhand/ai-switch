@@ -9,3 +9,4 @@
 *.bak*
 # profiles (user env)
 /.ai-profiles/
+.claude

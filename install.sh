@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# Main install script with remote download capability
+set -eu
 
 PREFIX="${PREFIX:-$HOME}"
 TARGET="$PREFIX/.ai-switch.sh"
@@ -20,10 +21,17 @@ fi
 mkdir -p "$(dirname "$TARGET")"
 
 # Fetch ai-switch.sh
+REPO_URL="${REPO_URL:-Cactusinhand/ai-switch}"
 if command -v curl >/dev/null 2>&1; then
-  curl -fsSL "https://raw.githubusercontent.com/<you>/ai-switch/main/ai-switch.sh" -o "$TARGET"
+  curl -fsSL "https://raw.githubusercontent.com/$REPO_URL/main/ai-switch.sh" -o "$TARGET" || {
+    echo "Error: Failed to download ai-switch.sh" >&2
+    exit 1
+  }
 else
-  wget -q "https://raw.githubusercontent.com/<you>/ai-switch/main/ai-switch.sh" -O "$TARGET"
+  wget -q "https://raw.githubusercontent.com/$REPO_URL/main/ai-switch.sh" -O "$TARGET" || {
+    echo "Error: Failed to download ai-switch.sh" >&2
+    exit 1
+  }
 fi
 
 chmod 644 "$TARGET"
