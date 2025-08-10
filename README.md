@@ -27,6 +27,7 @@ ai switch <profile>          # fzf-enabled if installed
 ai add <name>                # open template in $EDITOR
 ai add <name> KEY=VAL ...    # quick create
 ai add <name> --from-current # snapshot rc AI block
+ai remove <profile>          # delete profile; clears current if active
 ai edit <name>
 ai doctor
 ai version

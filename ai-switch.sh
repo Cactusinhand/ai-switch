@@ -1,10 +1,10 @@
 # shellcheck shell=bash
 # === AI profile switcher (instant apply, with `ai add`) ===
-# Version: 0.1.0
+# Version: 0.1.1
 # Description: Instantly switch AI provider environment profiles in your shell
 # Usage:
 #   source "$HOME/.ai-switch.sh"  # typically from ~/.bashrc or ~/.zshrc
-#   ai list | ai current | ai switch <name> | ai add <name> [opts] | ai edit <name> | ai doctor
+#   ai list | ai current | ai switch <name> | ai add <name> [opts] | ai remove <name> | ai edit <name> | ai doctor
 #
 # Features:
 # - Clean, portable export-only profiles
@@ -99,6 +99,31 @@ _ai_write_block_to_rc() {
   }
 }
 
+_ai_remove_block_from_rc() {
+  local tmp
+  tmp="$(mktemp)" || {
+    echo "Error: Failed to create temporary file" >&2
+    return 1
+  }
+  if [ -f "$AI_RC_FILE" ]; then
+    cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S)" || {
+      echo "Warning: Failed to create backup" >&2
+    }
+    sed '/^# >>> AI CONFIG START >>>$/,/^# <<< AI CONFIG END <<</{d}' "$AI_RC_FILE" >"$tmp" || {
+      echo "Error: Failed to process rc file" >&2
+      rm -f "$tmp"
+      return 1
+    }
+  else
+    : >"$tmp"
+  fi
+  mv "$tmp" "$AI_RC_FILE" || {
+    echo "Error: Failed to update rc file" >&2
+    rm -f "$tmp"
+    return 1
+  }
+}
+
 _ai_source_profile_now() {
   # $1: profile file path
   local v
@@ -179,7 +204,7 @@ _ai_write_profile_from_current_block() {
   ' "$AI_RC_FILE" >"$1"
 }
 
-_ai_version() { echo "ai-switch 0.1.0"; }
+_ai_version() { echo "ai-switch 0.1.1"; }
 
 # ------ main ------
 ai() {
@@ -245,6 +270,23 @@ EOF
       fi
       [ "$switch_after" -eq 1 ] && ai switch "$name" || echo "Run: ai switch $name"
       ;;
+    remove)
+      local name="${1:-}"
+      if [ -z "$name" ]; then echo "Usage: ai remove <profile>"; return 1; fi
+      if ! _ai_validate_name "$name"; then echo "Invalid profile name: $name"; return 1; fi
+      local file; file="$(_ai_profile_path "$name")"
+      if [ ! -f "$file" ]; then echo "Not found: $file"; return 1; fi
+      rm -f "$file"
+      if [ "$(_ai_current)" = "$name" ]; then
+        for v in $(_ai_extract_vars_from_block); do unset "$v"; done
+        _ai_remove_block_from_rc
+        rm -f "$AI_PROFILE_STATE"
+        unset AI_PROFILE
+        echo "✅ Removed current profile: $name"
+      else
+        echo "✅ Removed: $name"
+      fi
+      ;;
     edit)
       local name="${1:-}"; [ -z "$name" ] && { echo "Usage: ai edit <profile>"; return 1; }
       ${EDITOR:-vi} "$(_ai_profile_path "$name")"
@@ -262,6 +304,7 @@ Usage:
   ai current                Show current profile
   ai switch <profile>       Switch (fzf-enabled if installed)
   ai add <name> [opts]      Add new profile (template/kv/from-current)
+  ai remove <profile>       Remove profile file (clears if current)
   ai edit <profile>         Edit profile file
   ai doctor                 Diagnostics
   ai version                Show version

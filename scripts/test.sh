@@ -30,6 +30,15 @@ else
     exit 1
 fi
 
+# Test profile removal
+HOME="$TEST_HOME" bash -c '. "$HOME/.ai-switch.sh"; ai remove test-profile'
+if [ -f "$TEST_HOME/.ai-profiles/test-profile" ]; then
+    echo "❌ Remove profile test failed"
+    exit 1
+else
+    echo "✅ Remove profile test passed"
+fi
+
 # Cleanup
 rm -rf "$TEST_HOME"
 
