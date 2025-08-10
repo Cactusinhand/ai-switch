@@ -30,8 +30,24 @@ else
     exit 1
 fi
 
-# Test profile removal
-HOME="$TEST_HOME" bash -c '. "$HOME/.ai-switch.sh"; ai remove test-profile'
+# Test profile removal (active)
+HOME="$TEST_HOME" bash -c '
+    . "$HOME/.ai-switch.sh"
+    ai switch test-profile
+    ai remove test-profile
+    if [ -n "${TEST_VAR:-}" ]; then
+        echo "❌ Remove profile did not clear vars"
+        exit 1
+    fi
+    if [ -f "$HOME/.ai-profiles/.current" ]; then
+        echo "❌ Remove profile did not remove state"
+        exit 1
+    fi
+    if grep -q "AI CONFIG START" "$HOME/.bashrc"; then
+        echo "❌ Remove profile did not clean rc file"
+        exit 1
+    fi
+'
 if [ -f "$TEST_HOME/.ai-profiles/test-profile" ]; then
     echo "❌ Remove profile test failed"
     exit 1

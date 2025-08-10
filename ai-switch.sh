@@ -60,41 +60,13 @@ _ai_extract_vars_from_block() {
 
 _ai_write_block_to_rc() {
   # $1: profile file path
-  local tmp
-  tmp="$(mktemp)" || {
-    echo "Error: Failed to create temporary file" >&2
-    return 1
-  }
-  
-  # Backup existing rc file
-  if [ -f "$AI_RC_FILE" ]; then
-    cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S)" || {
-      echo "Warning: Failed to create backup" >&2
-    }
-    sed '/^# >>> AI CONFIG START >>>$/,/^# <<< AI CONFIG END <<</{d}' "$AI_RC_FILE" >"$tmp" || {
-      echo "Error: Failed to process rc file" >&2
-      rm -f "$tmp"
-      return 1
-    }
-  else
-    : >"$tmp"
-  fi
-  
-  # Write new AI config block
+  _ai_remove_block_from_rc || return 1
   {
     echo "$AI_RC_START"
     cat "$1"
     echo "$AI_RC_END"
-  } >>"$tmp" || {
+  } >>"$AI_RC_FILE" || {
     echo "Error: Failed to write AI config block" >&2
-    rm -f "$tmp"
-    return 1
-  }
-  
-  # Move temp file to rc file
-  mv "$tmp" "$AI_RC_FILE" || {
-    echo "Error: Failed to update rc file" >&2
-    rm -f "$tmp"
     return 1
   }
 }
@@ -109,7 +81,11 @@ _ai_remove_block_from_rc() {
     cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S)" || {
       echo "Warning: Failed to create backup" >&2
     }
-    sed '/^# >>> AI CONFIG START >>>$/,/^# <<< AI CONFIG END <<</{d}' "$AI_RC_FILE" >"$tmp" || {
+    awk -v s="$AI_RC_START" -v e="$AI_RC_END" '
+      $0==s{inblk=1; next}
+      $0==e{inblk=0; next}
+      !inblk{print}
+    ' "$AI_RC_FILE" >"$tmp" || {
       echo "Error: Failed to process rc file" >&2
       rm -f "$tmp"
       return 1
