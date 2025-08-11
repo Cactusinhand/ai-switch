@@ -19,6 +19,14 @@ TEST_HOME="./test-temp-$$"
 mkdir -p "$TEST_HOME/.ai-profiles"
 cp ai-switch.sh "$TEST_HOME/.ai-switch.sh"
 
+# Ensure listing handles no profiles
+if [ -z "$(HOME="$TEST_HOME" bash -c '. "$HOME/.ai-switch.sh"; ai list | sed -n 2p')" ]; then
+    echo "✅ Empty list handled"
+else
+    echo "❌ Empty list not handled"
+    exit 1
+fi
+
 # Test profile creation
 echo 'export TEST_VAR=test_value' > "$TEST_HOME/.ai-profiles/test-profile"
 
