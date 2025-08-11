@@ -2,6 +2,20 @@
 
 Instantly switch AI provider environment profiles in your shell.
 
+## Usage
+```
+ai list
+ai current
+ai switch <profile>          # fzf-enabled if installed
+ai add <name>                # open template in $EDITOR
+ai add <name> KEY=VAL ...    # quick create
+ai add <name> --from-current # snapshot rc AI block
+ai remove <profile>          # delete profile; clears current if active
+ai edit <name>
+ai doctor
+ai version
+```
+
 ## Why?
 - Stop commenting/uncommenting blocks in `~/.bashrc`.
 - Keep clean, portable `export`-only profiles.
@@ -16,26 +30,10 @@ Instantly switch AI provider environment profiles in your shell.
 cp ai-switch.sh ~/.ai-switch.sh
 echo '[ -f "$HOME/.ai-switch.sh" ] && source "$HOME/.ai-switch.sh"' >> ~/.bashrc  # or ~/.zshrc
 
-Then reload your shell:
+# Then reload your shell:
 source ~/.bashrc  # or: source ~/.zshrc
 
-## Usage
-
-ai list
-ai current
-ai switch <profile>          # fzf-enabled if installed
-ai add <name>                # open template in $EDITOR
-ai add <name> KEY=VAL ...    # quick create
-ai add <name> --from-current # snapshot rc AI block
-ai remove <profile>          # delete profile; clears current if active
-ai edit <name>
-ai doctor
-ai version
-
-
-## Contributing
-
-Thanks for helping!
+```
 
 ## Development
 ```bash
