@@ -39,7 +39,7 @@ mkdir -p "$AI_PROFILES_DIR"
 _ai_list_profiles() {
   [ -d "$AI_PROFILES_DIR" ] || return 0
   local f base
-  for f in "$AI_PROFILES_DIR"/*; do
+  for f in "$AI_PROFILES_DIR"/* "$AI_PROFILES_DIR"/.*; do
     [ -e "$f" ] || continue
     [ -f "$f" ] || continue
     base="$(basename "$f")"
