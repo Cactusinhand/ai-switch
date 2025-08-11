@@ -67,7 +67,7 @@ echo 'export TEST_VAR=test_value' > "$TEST_HOME/.ai-profiles/test-profile"
     bash -c '
         . "$HOME/.ai-switch.sh"
         ai switch test-profile
-        AI_RC_FILE="$HOME/does-not-exist/.bashrc"
+        AI_RC_FILE="/proc/self/mem"
         if ai remove test-profile; then
             echo "❌ Remove should have failed"
             exit 1
@@ -92,6 +92,21 @@ if [ ! -f "$TEST_HOME/.ai-profiles/test-profile" ]; then
 else
     echo "✅ Remove failure handled correctly"
 fi
+
+# Test removing block when rc file is absent
+(
+    export HOME="$TEST_HOME"
+    bash -c '
+        . "$HOME/.ai-switch.sh"
+        AI_RC_FILE="$HOME/missingrc"
+        _ai_remove_block_from_rc
+        if [ -f "$HOME/missingrc" ]; then
+            echo "❌ RC removal created file"
+            exit 1
+        fi
+    '
+)
+echo "✅ RC removal without existing file leaves filesystem untouched"
 
 # Cleanup
 rm -rf "$TEST_HOME"
