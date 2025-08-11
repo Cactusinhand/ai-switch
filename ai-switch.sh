@@ -68,7 +68,7 @@ _ai_atomic_rc_update() {
   }
 
   if [ -f "$AI_RC_FILE" ]; then
-    cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S)" || {
+    cp "$AI_RC_FILE" "${AI_RC_FILE}.bak.$(date +%Y%m%d%H%M%S).$$" || {
       echo "Warning: Failed to create backup" >&2
     }
     awk -v s="$AI_RC_START" -v e="$AI_RC_END" '
