@@ -58,6 +58,41 @@ else
     echo "✅ Remove profile test passed"
 fi
 
+# Recreate profile for failure test
+echo 'export TEST_VAR=test_value' > "$TEST_HOME/.ai-profiles/test-profile"
+
+# Test profile removal failure when rc update fails
+(
+    export HOME="$TEST_HOME"
+    bash -c '
+        . "$HOME/.ai-switch.sh"
+        ai switch test-profile
+        AI_RC_FILE="$HOME/does-not-exist/.bashrc"
+        if ai remove test-profile; then
+            echo "❌ Remove should have failed"
+            exit 1
+        fi
+        if [ ! -f "$HOME/.ai-profiles/.current" ]; then
+            echo "❌ State file removed on failure"
+            exit 1
+        fi
+        if [ -z "${TEST_VAR:-}" ]; then
+            echo "❌ Vars cleared on failure"
+            exit 1
+        fi
+        if ! grep -q "AI CONFIG START" "$HOME/.bashrc"; then
+            echo "❌ RC block removed on failure"
+            exit 1
+        fi
+    '
+)
+if [ ! -f "$TEST_HOME/.ai-profiles/test-profile" ]; then
+    echo "❌ Profile file removed on failure"
+    exit 1
+else
+    echo "✅ Remove failure handled correctly"
+fi
+
 # Cleanup
 rm -rf "$TEST_HOME"
 

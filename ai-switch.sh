@@ -252,14 +252,20 @@ EOF
       if ! _ai_validate_name "$name"; then echo "Invalid profile name: $name"; return 1; fi
       local file; file="$(_ai_profile_path "$name")"
       if [ ! -f "$file" ]; then echo "Not found: $file"; return 1; fi
-      rm -f "$file"
       if [ "$(_ai_current)" = "$name" ]; then
-        for v in $(_ai_extract_vars_from_block); do unset "$v"; done
-        _ai_remove_block_from_rc
+        local vars v
+        vars="$(_ai_extract_vars_from_block)"
+        if ! _ai_remove_block_from_rc; then
+          echo "Error: Failed to update rc file" >&2
+          return 1
+        fi
+        rm -f "$file"
+        for v in $vars; do unset "$v"; done
         rm -f "$AI_PROFILE_STATE"
         unset AI_PROFILE
         echo "✅ Removed current profile: $name"
       else
+        rm -f "$file"
         echo "✅ Removed: $name"
       fi
       ;;
