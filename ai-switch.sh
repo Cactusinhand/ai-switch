@@ -275,7 +275,9 @@ EOF
         fi
         rm -f "$file"
         for v in $vars; do unset "$v"; done
-        rm -f "$AI_PROFILE_STATE"
+        if ! rm -f "$AI_PROFILE_STATE"; then
+          echo "Warning: Failed to remove state file '$AI_PROFILE_STATE'. Please remove it manually." >&2
+        fi
         unset AI_PROFILE
         echo "✅ Removed current profile: $name"
       else
