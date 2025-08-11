@@ -16,6 +16,7 @@ fi
 # Test 2: Basic functionality
 echo "📋 Testing basic functionality..."
 TEST_HOME="./test-temp-$$"
+trap 'rm -rf "$TEST_HOME"' EXIT
 mkdir -p "$TEST_HOME/.ai-profiles"
 cp ai-switch.sh "$TEST_HOME/.ai-switch.sh"
 
