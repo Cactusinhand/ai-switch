@@ -273,7 +273,9 @@ EOF
           echo "Error: Failed to update rc file" >&2
           return 1
         fi
-        rm -f "$file"
+        if ! rm -f "$file"; then
+          echo "Warning: Failed to remove profile file '$file'. Please remove it manually." >&2
+        fi
         for v in $vars; do unset "$v"; done
         if ! rm -f "$AI_PROFILE_STATE"; then
           echo "Warning: Failed to remove state file '$AI_PROFILE_STATE'. Please remove it manually." >&2
