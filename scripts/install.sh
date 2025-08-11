@@ -16,6 +16,7 @@ else
 fi
 
 # Add source line if not already present
+# shellcheck disable=SC2016
 SOURCE_LINE='[ -f "$HOME/.ai-switch.sh" ] && source "$HOME/.ai-switch.sh"'
 if ! grep -q "source \"\$HOME/.ai-switch.sh\"" "$RC_FILE" 2>/dev/null; then
     printf '\n# ai-switch\n%s\n' "$SOURCE_LINE" >> "$RC_FILE"
