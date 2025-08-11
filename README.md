@@ -16,6 +16,8 @@ ai doctor
 ai version
 ```
 
+Profiles are stored in `$AI_PROFILES_DIR` (defaults to `~/.ai-profiles`).
+
 ## Why?
 - Stop commenting/uncommenting blocks in `~/.bashrc`.
 - Keep clean, portable `export`-only profiles.

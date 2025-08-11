@@ -37,8 +37,15 @@ mkdir -p "$AI_PROFILES_DIR"
 # List all available profiles in the profiles directory
 # Returns: List of profile names, one per line
 _ai_list_profiles() {
-  find "$AI_PROFILES_DIR" -maxdepth 1 -type f ! -name '.current' 2>/dev/null \
-    | sed -e 's#.*/##' || true
+  [ -d "$AI_PROFILES_DIR" ] || return 0
+  local f base
+  for f in "$AI_PROFILES_DIR"/*; do
+    [ -e "$f" ] || continue
+    [ -f "$f" ] || continue
+    base="$(basename "$f")"
+    [ "$base" = ".current" ] && continue
+    printf '%s\n' "$base"
+  done | sort
 }
 
 # Display the currently active profile
@@ -201,7 +208,12 @@ _ai_version() { echo "ai-switch 0.1.1"; }
 ai() {
   local cmd="${1:-}"; shift || true
   case "$cmd" in
-    list|"") echo "Available profiles:"; _ai_list_profiles ;;
+    list|"")
+      echo "Available profiles:"
+      local profiles
+      profiles="$(_ai_list_profiles)"
+      [ -n "$profiles" ] && printf '%s\n' "$profiles"
+      ;;
     current) echo "Current profile: $(_ai_current)" ;;
     version|--version|-v) _ai_version ;;
     switch)
