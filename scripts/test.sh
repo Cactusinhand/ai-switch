@@ -22,6 +22,14 @@ cp ai-switch.sh "$TEST_HOME/.ai-switch.sh"
 # Test profile creation
 echo 'export TEST_VAR=test_value' > "$TEST_HOME/.ai-profiles/test-profile"
 
+# Ensure listing shows the created profile
+if HOME="$TEST_HOME" bash -c '. "$HOME/.ai-switch.sh"; ai list | grep -qx "test-profile"'; then
+    echo "✅ List shows profile"
+else
+    echo "❌ List did not include profile"
+    exit 1
+fi
+
 # Test basic script syntax and structure
 if HOME="$TEST_HOME" bash -n "$TEST_HOME/.ai-switch.sh"; then
     echo "✅ Basic functionality test passed"

@@ -37,7 +37,8 @@ mkdir -p "$AI_PROFILES_DIR"
 # List all available profiles in the profiles directory
 # Returns: List of profile names, one per line
 _ai_list_profiles() {
-  find "$AI_PROFILES_DIR" -maxdepth 1 -type f ! -name '.current' -printf '%f\n' 2>/dev/null || true
+  find "$AI_PROFILES_DIR" -maxdepth 1 -type f ! -name '.current' 2>/dev/null \
+    | sed -e 's#.*/##' || true
 }
 
 # Display the currently active profile
