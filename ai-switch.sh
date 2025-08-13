@@ -314,7 +314,7 @@ EOF
       cat <<'EOF'
 Usage:
   ai list                   List profiles
-  ai current | ai status     Show current profile
+  ai current | ai status    Show current profile
   ai switch <profile>       Switch (fzf-enabled if installed)
   ai checkout <profile>     Alias for 'ai switch'
   ai add <name> [opts]      Add new profile (template/kv/from-current)
