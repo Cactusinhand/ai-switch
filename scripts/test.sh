@@ -39,19 +39,20 @@ else
     exit 1
 fi
 
-# Test alias: status
-if HOME="$TEST_HOME" bash -c '. "$HOME/.ai-switch.sh"; ai status | grep -qx "Current profile: (none)"'; then
-    echo "✅ status alias works"
-else
-    echo "❌ status alias failed"
-    exit 1
-fi
+# Test aliases
+if HOME="$TEST_HOME" bash -c '
+    . "$HOME/.ai-switch.sh"
+    
+    # Test status alias
+    ai status | grep -qx "Current profile: (none)" || exit 1
 
-# Test alias: checkout
-if HOME="$TEST_HOME" bash -c '. "$HOME/.ai-switch.sh"; ai checkout test-profile; ai status | grep -qx "Current profile: test-profile"'; then
-    echo "✅ checkout alias works"
+    # Test checkout alias
+    ai checkout test-profile
+    ai status | grep -qx "Current profile: test-profile" || exit 1
+'; then
+    echo "✅ status and checkout aliases work"
 else
-    echo "❌ checkout alias failed"
+    echo "❌ alias tests failed"
     exit 1
 fi
 
