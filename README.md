@@ -5,8 +5,8 @@ Instantly switch AI provider environment profiles in your shell.
 ## Usage
 ```
 ai list
-ai current
-ai switch <profile>          # fzf-enabled if installed
+ai current | ai status
+ai switch <profile> | ai checkout <profile>          # fzf-enabled if installed
 ai add <name>                # open template in $EDITOR
 ai add <name> KEY=VAL ...    # quick create
 ai add <name> --from-current # snapshot rc AI block
