@@ -221,7 +221,7 @@ ai() {
       if [ -z "$name" ] && command -v fzf >/dev/null 2>&1; then
         name="$(_ai_list_profiles | fzf --prompt='Select AI profile> ' --height=40% --reverse)"
       fi
-      if [ -z "$name" ]; then echo "Usage: ai switch <profile> (or: ai checkout <profile>)"; return 1; fi
+      if [ -z "$name" ]; then echo "Usage: ai $cmd <profile>"; return 1; fi
       if ! _ai_validate_name "$name"; then echo "Invalid profile name: $name"; return 1; fi
       local file; file="$(_ai_profile_path "$name")"
       if [ ! -f "$file" ]; then echo "Not found: $file"; return 1; fi
