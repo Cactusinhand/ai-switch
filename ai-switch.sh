@@ -214,14 +214,14 @@ ai() {
       profiles="$(_ai_list_profiles)"
       [ -n "$profiles" ] && printf '%s\n' "$profiles"
       ;;
-    current) echo "Current profile: $(_ai_current)" ;;
+    current|status) echo "Current profile: $(_ai_current)" ;;
     version|--version|-v) _ai_version ;;
-    switch)
+    switch|checkout)
       local name="${1:-}"
       if [ -z "$name" ] && command -v fzf >/dev/null 2>&1; then
         name="$(_ai_list_profiles | fzf --prompt='Select AI profile> ' --height=40% --reverse)"
       fi
-      if [ -z "$name" ]; then echo "Usage: ai switch <profile>"; return 1; fi
+      if [ -z "$name" ]; then echo "Usage: ai $cmd <profile>"; return 1; fi
       if ! _ai_validate_name "$name"; then echo "Invalid profile name: $name"; return 1; fi
       local file; file="$(_ai_profile_path "$name")"
       if [ ! -f "$file" ]; then echo "Not found: $file"; return 1; fi
@@ -314,8 +314,9 @@ EOF
       cat <<'EOF'
 Usage:
   ai list                   List profiles
-  ai current                Show current profile
+  ai current | ai status    Show current profile
   ai switch <profile>       Switch (fzf-enabled if installed)
+  ai checkout <profile>     Alias for 'ai switch'
   ai add <name> [opts]      Add new profile (template/kv/from-current)
   ai remove <profile>       Remove profile file (clears if current)
   ai edit <profile>         Edit profile file
