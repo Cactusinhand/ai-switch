@@ -8,6 +8,24 @@ echo "🚀 Installing ai-switch..."
 cp ai-switch.sh "$HOME/.ai-switch.sh"
 chmod 644 "$HOME/.ai-switch.sh"
 
+# Seed example profiles (local copy) only if directory is empty
+AI_PROFILES_DIR="${AI_PROFILES_DIR:-$HOME/.ai-profiles}"
+mkdir -p "$AI_PROFILES_DIR"
+if [ -d "examples/profiles" ]; then
+    if [ -z "$(ls -A "$AI_PROFILES_DIR" 2>/dev/null)" ]; then
+        for f in examples/profiles/*; do
+            [ -f "$f" ] || continue
+            base="$(basename "$f")"
+            dst="$AI_PROFILES_DIR/$base"
+            cp "$f" "$dst"
+            chmod 644 "$dst" 2>/dev/null || true
+        done
+        echo "✅ Seeded example profiles into $AI_PROFILES_DIR (first install)"
+    else
+        echo "ℹ️  $AI_PROFILES_DIR not empty; skipping template seeding"
+    fi
+fi
+
 # Determine shell config file
 if [ -n "${ZSH_VERSION:-}" ] || [ "${SHELL:-}" = "/bin/zsh" ]; then
     RC_FILE="$HOME/.zshrc"
